@@ -378,8 +378,7 @@ st.write("### For OctoAI internal use only!")
 
 my_upload = st.file_uploader("Take a snap or upload a photo", type=["png", "jpg", "jpeg"])
 
-with st.expander("Advance Settings"):
-    additional_detail = st.text_area("Additional information about yourself", value="")
+additional_detail = ""
 
 if my_upload is not None:
     if st.button('OctoShop!'):
@@ -397,6 +396,9 @@ if my_upload is not None:
                 tries += 1
                 print("Something went wrong invoking CLIP, trying again")
         print("The CLIP labels are: {}".format(labels))
+
+        with st.expander("Problems with the results?"):
+            additional_detail = st.text_area("Maybe the tool needs a bit of help. Provide some information about yourself.", value="")
 
         for i in range(0, 8):
             t = threading.Thread(target=octoshop, args=(image, labels, additional_detail, "analog-film"))
