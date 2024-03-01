@@ -242,7 +242,7 @@ def query_llm(prompt):
     return generated_text
 
 def query_sdxl(payload):
-    oai_client = Client(os.environ["OCTOAI_TOKEN"])
+    oai_client = Client(OCTOAI_TOKEN)
     future = oai_client.infer_async(
         endpoint_url="https://image.octoai.run/generate/controlnet-sdxl",
         inputs=payload
