@@ -357,7 +357,8 @@ st.write("### For OctoAI internal use only!")
 
 my_upload = st.file_uploader("Take a snap or upload a photo", type=["png", "jpg", "jpeg"])
 
-additional_detail = ""
+with st.expander("Results need improvement?"):
+    additional_detail = st.text_area("Maybe the AI models needs a bit of help to combat bias. Provide some information about yourself to better guide the results.", value="")
 
 if my_upload is not None:
     if st.button('OctoShop!'):
@@ -374,9 +375,6 @@ if my_upload is not None:
             st.runtime.scriptrunner.add_script_run_ctx(t)
             t.start()
         img_q.join()
-
-        with st.expander("Problems with the results?"):
-            additional_detail = st.text_area("Maybe the AI models needs a bit of help to combat bias. Provide some information about yourself to better guide the results.", value="")
 
         col1, col2, col3, col4 = st.columns(4)
         columns = [col1, col2, col3, col4]
