@@ -397,16 +397,18 @@ if my_upload is not None:
                 print("Something went wrong invoking CLIP, trying again")
         print("The CLIP labels are: {}".format(labels))
 
-        with st.expander("Problems with the results?"):
-            additional_detail = st.text_area("Maybe the tool needs a bit of help. Provide some information about yourself.", value="")
-
         for i in range(0, 8):
             t = threading.Thread(target=octoshop, args=(image, labels, additional_detail, "analog-film"))
             st.runtime.scriptrunner.add_script_run_ctx(t)
             t.start()
         img_q.join()
+
+        with st.expander("Problems with the results?"):
+            additional_detail = st.text_area("Maybe the AI models needs a bit of help to combat bias. Provide some information about yourself to better guide the results.", value="")
+
         col1, col2, col3, col4 = st.columns(4)
         columns = [col1, col2, col3, col4]
+
         photo_counter = 0
         while True:
             image, caption, description = img_q.get()
