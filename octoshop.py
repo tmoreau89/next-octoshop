@@ -2,16 +2,12 @@ import streamlit as st
 from octoai.client import Client
 from octoai.errors import OctoAIClientError, OctoAIServerError
 from base64 import b64encode, b64decode
-from PIL import Image, PngImagePlugin, ExifTags, ImageFont, ImageDraw
+from PIL import Image, ExifTags
 from io import BytesIO
 import requests
-import json
 import os
 import time
-import gzip
-import cv2
 import random
-import numpy as np
 import threading
 import queue
 
@@ -140,12 +136,6 @@ img_q = queue.Queue()
 # OctoAI client
 oai_client = Client(OCTOAI_TOKEN)
 
-def read_image(image):
-    buffer = BytesIO()
-    image.save(buffer, format="png")
-    im_base64 = b64encode(buffer.getvalue()).decode("utf-8")
-    return im_base64
-
 def rotate_image(image):
     try:
         # Rotate based on Exif Data
@@ -187,18 +177,6 @@ def rescale_image(image):
         else:
             return image.resize((832, 1216))
 
-def get_canny(image, l_thrshld=100, h_thrshld=200):
-    image_np = np.array(image)
-    image_np = cv2.Canny(
-        image_np,
-        l_thrshld,
-        h_thrshld
-    )
-    image_np = image_np[:, :, None]
-    image_np = np.concatenate([image_np, image_np, image_np], axis=2)
-    image_pil = Image.fromarray(image_np)
-    return image_pil
-
 def rescale_image(image):
     w, h = image.size
 
@@ -228,58 +206,6 @@ def read_image(image):
     image.save(buffer, format="png")
     im_base64 = b64encode(buffer.getvalue()).decode("utf-8")
     return im_base64
-
-def b64_img(image: Image) -> str:
-    return "data:image/png;base64," + raw_b64_img(image)
-
-def raw_b64_img(image: Image) -> str:
-    # XXX controlnet only accepts RAW base64 without headers
-    with BytesIO() as output_bytes:
-        metadata = None
-        for key, value in image.info.items():
-            if isinstance(key, str) and isinstance(value, str):
-                if metadata is None:
-                    metadata = PngImagePlugin.PngInfo()
-                metadata.add_text(key, value)
-        image.save(output_bytes, format="PNG", pnginfo=metadata)
-
-        bytes_data = output_bytes.getvalue()
-
-    return str(b64encode(bytes_data), "utf-8")
-
-def post_request(url, payload):
-    headers = {
-        "Content-type": "application/json",
-        "X-OctoAI-Async": "1",
-    }
-    response = requests.post(url=url, json=payload, headers=headers)
-    response.raise_for_status()
-    return response.json()
-
-def get_request(url):
-    headers = {
-        "Content-type": "application/json",
-    }
-    response = requests.get(url=url, headers=headers)
-    response.raise_for_status()
-    return response.json()
-
-def get_gzip_request(url):
-    headers = {
-        "Content-type": "application/json",
-    }
-    response = requests.get(url=url, headers=headers)
-    response.raise_for_status()
-    print(url)
-    print(response.headers)
-    if response.headers['Content-Encoding'] == 'gzip':
-        try:
-            content = gzip.decompress(response.content)
-            return json.loads(content)
-        except Exception as e:
-            return response.json()
-    else:
-        return response.json()
 
 def query_clip_interrogator(image_str):
     clip_request = {
@@ -484,6 +410,5 @@ if my_upload is not None:
             image, caption, description = img_q.get()
             columns[photo_counter%4].image(image)
             columns[photo_counter%4].text(caption)
-            # columns[photo_counter%4].text_area(caption, value=description)
             photo_counter += 1
 
