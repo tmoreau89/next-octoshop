@@ -283,14 +283,7 @@ def octoshop(image, labels, additional_detail, style):
             AI: '''.format(caption, additional_detail)
         print("Prompt: {}".format(llm_prompt))
         start_llama = time.time()
-        tries = 0
-        while tries < 3:
-            try:
-                transformed_labels = query_llm(llm_prompt)
-                break
-            except:
-                tries += 1
-                print("Something went wrong invoking LLM, trying again")
+        transformed_labels = query_llm(llm_prompt)
         end_llama = time.time()
         print("Transcription by the LLM: {}".format(transformed_labels))
 
@@ -317,26 +310,12 @@ def octoshop(image, labels, additional_detail, style):
             "controlnet_conditioning_scale": 0.2,
         }
         start_sdxl = time.time()
-        tries = 0
-        while tries < 3:
-            try:
-                gen_image = query_sdxl(payload)
-                break
-            except:
-                tries += 1
-                print("Something went wrong invoking SDXL, trying again")
+        gen_image = query_sdxl(payload)
         end_sdxl = time.time()
         print("SDXL generation done!")
 
         start_faceswap = time.time()
-        tries = 0
-        while tries < 3:
-            try:
-                gen_image = query_faceswap(read_image(image), gen_image)
-                break
-            except:
-                tries += 1
-                print("Something went wrong invoking face swap, trying again")
+        gen_image = query_faceswap(read_image(image), gen_image)
         end_faceswap = time.time()
         print("Faceswap done!")
 
@@ -387,14 +366,7 @@ if my_upload is not None:
         input_img = rotate_image(input_img)
         image = rescale_image(input_img)
         # Send CLIP request
-        tries = 0
-        while tries < 3:
-            try:
-                labels = query_clip_interrogator(read_image(image))
-                break
-            except:
-                tries += 1
-                print("Something went wrong invoking CLIP, trying again")
+        labels = query_clip_interrogator(read_image(image))
         print("The CLIP labels are: {}".format(labels))
 
         for i in range(0, 8):
