@@ -365,9 +365,9 @@ def octoshop(image, labels, additional_detail, style):
         # progress_bar.empty()
         st.write("Oops something went wrong (server error)")
 
-    except Exception as e:
-        # progress_bar.empty()
-        st.write("Oops something went wrong (unexpected error)!")
+    # except Exception as e:
+    #     # progress_bar.empty()
+    #     st.write("Oops something went wrong (unexpected error)!")
 
 
 st.set_page_config(layout="wide", page_title="Yearbook photo with OctoAI")
