@@ -264,7 +264,7 @@ def query_faceswap(src_image, dst_image):
     )
     return reply.json()["completion"]["image"]
 
-def octoshop(image, labels, additional_detail, style):
+def octoshop(image, person_info, hair_color, hair_cut, hair_texture, eye_color, additional_detail):
     # Wrap all of this in a try block
     try:
         start = time.time()
@@ -272,15 +272,15 @@ def octoshop(image, labels, additional_detail, style):
 
         # Prepare LLAMA request to perform translation
         caption = random.choice(caption_list)
-        if additional_detail == "":
-            llm_prompt = '''
-            Human: provide detailed, one-sentence image description of a yearbook photo of a student dressed in 90's clothing. The caption of the yearbook photo is: "{}", so add props in the description that reinforce that caption. Identify the subject details based on the following context while ignoring clothing from that context.
-            Context: "{}".
-            AI: '''.format(caption, labels)
-        else:
-            llm_prompt = '''
-            Human: provide detailed, one-sentence image description of a yearbook photo of a student dressed in 90's clothing. The caption of the yearbook photo is: "{}", so add props in the description that reinforce that caption. The subject is {}.
-            AI: '''.format(caption, additional_detail)
+        # if additional_detail == "":
+        #     llm_prompt = '''
+        #     Human: provide detailed, one-sentence image description of a yearbook photo of a student dressed in 90's clothing. The caption of the yearbook photo is: "{}", so add props in the description that reinforce that caption. Identify the subject details based on the following context while ignoring clothing from that context.
+        #     Context: "{}".
+        #     AI: '''.format(caption, labels)
+        # else:
+        llm_prompt = '''
+        Human: provide detailed, one-sentence image description of a yearbook photo of a student dressed in 90's clothing. The caption of the yearbook photo is: "{}", so add props in the description that reinforce that caption. The subject is a {}.
+        AI: '''.format(caption, person_info)
         print("Prompt: {}".format(llm_prompt))
         start_llama = time.time()
         transformed_labels = query_llm(llm_prompt)
@@ -288,7 +288,20 @@ def octoshop(image, labels, additional_detail, style):
         print("Transcription by the LLM: {}".format(transformed_labels))
 
         # Prepare SDXL input
-        prompt = "(90s yearbook portrait), {}".format(transformed_labels)
+        prompt = "(90s yearbook portrait), {}, {}".format(transformed_labels, person_info)
+        if additional_detail:
+            prompt += ", {}".format(additional_detail)
+        if eye_color:
+            prompt += ", {} eyes".format(eye_color)
+        if hair_color or hair_cut or hair_texture:
+            prompt += ", "
+            if hair_cut:
+                prompt += "{} ".format(hair_cut)
+            if hair_color:
+                prompt += "{} ".format(hair_color)
+            if hair_texture:
+                prompt += "{} ".format(hair_texture)
+            prompt += "hair"
         # Enhance the prompt for the chosen style
         width, height = image.size
         payload = {
@@ -357,21 +370,109 @@ st.write("### For OctoAI internal use only!")
 
 my_upload = st.file_uploader("Take a snap or upload a photo", type=["png", "jpg", "jpeg"])
 
-with st.expander("Results need improvement?"):
-    additional_detail = st.text_area("Maybe the AI models needs a bit of help to combat bias. Provide some information about yourself to better guide the results.", value="")
+person_info = st.radio(
+    "Select the emoji you identify the most with",
+    [
+        "👩🏻", "👩🏼", "👩🏽", "👩🏾", "👩🏿",
+        "🧑🏻", "🧑🏼", "🧑🏽", "🧑🏾", "🧑🏿",
+        "👨🏻", "👨🏼", "👨🏽", "👨🏾", "👨🏿"
+    ],
+    # captions = [
+    #     "woman", "woman", "woman", "woman", "woman",
+    #     "person", "person", "person", "person", "person",
+    #     "man", "man", "man", "man", "man"
+    # ],
+    index=None,
+    horizontal=True
+)
+person_info_dict = {
+    "👩🏻": "woman with light skin",
+    "👩🏼": "woman with medium-light skin",
+    "👩🏽": "woman with medium skin",
+    "👩🏾": "woman with medium-dark skin",
+    "👩🏿": "woman with dark skin",
+    "🧑🏻": "gender neutral person with light skin",
+    "🧑🏼": "gender neutral person with medium-light skin",
+    "🧑🏽": "gender neutral person with medium skin",
+    "🧑🏾": "gender neutral person with medium-dark skin",
+    "🧑🏿": "gender neutral person with dark skin",
+    "👨🏻": "man with light skin",
+    "👨🏼": "man with medium-light skin",
+    "👨🏽": "man with medium skin",
+    "👨🏾": "man with medium-dark skin",
+    "👨🏿": "man with dark skin",
+}
 
-if my_upload is not None:
-    if st.button('OctoShop!'):
+with st.expander("Results need improvement?"):
+    st.text("The AI models probably need a bit more information about you!")
+    col1, col2, col3, col4 = st.columns(4)
+    hair_color_detail = col1.radio(
+        "Select information that best describes your hair color",
+        [
+            "black",
+            "brown",
+            "blond",
+            "white/gray",
+            "red"
+        ],
+        index=None
+    )
+    hair_cut_detail = col2.radio(
+        "Select information that best describes your hair cut",
+        [
+            "bald",
+            "short",
+            "medium length",
+            "long"
+        ],
+        index=None
+    )
+    hair_texture_detail = col3.radio(
+        "Select information that best describes your hair texture",
+        [
+            "straight",
+            "wavy",
+            "curly",
+            "tightly curled"
+        ],
+        index=None
+    )
+    eye_color_detail = col4.radio(
+        "Select information that best describes your eyes",
+        [
+            "black",
+            "brown",
+            "green",
+            "blue"
+        ],
+        index=None
+    )
+    additional_detail = st.text_input("Any additional information about you (e.g. ethnicity)", value="")
+
+
+if my_upload is not None and person_info_dict is not None:
+    if st.button('Generate Yearbook Photos'):
         # Pre-process the image
         input_img = Image.open(my_upload)
         input_img = rotate_image(input_img)
         image = rescale_image(input_img)
-        # Send CLIP request
-        labels = query_clip_interrogator(read_image(image))
-        print("The CLIP labels are: {}".format(labels))
+        # # Send CLIP request
+        # labels = query_clip_interrogator(read_image(image))
+        # print("The CLIP labels are: {}".format(labels))
 
         for i in range(0, 8):
-            t = threading.Thread(target=octoshop, args=(image, labels, additional_detail, "analog-film"))
+            t = threading.Thread(
+                target=octoshop,
+                args=(
+                    image,
+                    person_info_dict[person_info],
+                    hair_color_detail,
+                    hair_cut_detail,
+                    hair_texture_detail,
+                    eye_color_detail,
+                    additional_detail
+                )
+            )
             st.runtime.scriptrunner.add_script_run_ctx(t)
             t.start()
         img_q.join()
