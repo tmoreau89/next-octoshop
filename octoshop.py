@@ -240,7 +240,7 @@ def query_faceswap(src_image, dst_image):
     )
     return reply.json()["completion"]["image"]
 
-def octoshop(image, person_info, hair_color, hair_cut, hair_texture, eye_color, additional_detail):
+def octoshop(image, labels, hair_color, hair_cut, hair_texture, eye_color, additional_detail):
     # Wrap all of this in a try block
     try:
         start = time.time()
@@ -259,20 +259,20 @@ def octoshop(image, person_info, hair_color, hair_cut, hair_texture, eye_color, 
         print("Transcription by the LLM: {}".format(transformed_labels))
 
         # Prepare SDXL input
-        prompt = "(90s yearbook portrait), {}, {}".format(transformed_labels, person_info)
+        prompt = "(90s yearbook portrait), (laser background), {}".format(transformed_labels)
         if additional_detail:
-            prompt += ", {}".format(additional_detail)
+            prompt += ", ({})".format(additional_detail)
         if eye_color:
-            prompt += ", {} eyes".format(eye_color)
+            prompt += ", ({} eyes)".format(eye_color)
         if hair_color or hair_cut or hair_texture:
-            prompt += ", "
+            prompt += ", ()"
             if hair_cut:
                 prompt += "{} ".format(hair_cut)
             if hair_color:
                 prompt += "{} ".format(hair_color)
             if hair_texture:
                 prompt += "{} ".format(hair_texture)
-            prompt += "hair"
+            prompt += "hair)"
         # Enhance the prompt for the chosen style
         width, height = image.size
         payload = {
@@ -291,7 +291,7 @@ def octoshop(image, person_info, hair_color, hair_cut, hair_texture, eye_color, 
             "controlnet_preprocess": True,
             "controlnet_image": read_image(image),
             "controlnet": "depth_sdxl",
-            "controlnet_conditioning_scale": 0.33,
+            "controlnet_conditioning_scale": 0.5,
         }
         start_sdxl = time.time()
         gen_image = query_sdxl(payload)
