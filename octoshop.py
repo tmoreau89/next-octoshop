@@ -335,9 +335,9 @@ def octoshop(image, person_info, hair_color, hair_cut, hair_texture, eye_color, 
 
 st.set_page_config(layout="wide", page_title="Yearbook photo with OctoAI")
 
-st.write("## Yearbook photo with OctoAI")
+st.write("## Yearbook photo with OctoAI 📷")
 st.write("\n\n")
-st.write("### For OctoAI internal use only!")
+st.write("### This is a demo preview, and is not meant for redistribution or production use")
 
 my_upload = st.file_uploader("Take a snap or upload a photo", type=["png", "jpg", "jpeg"])
 
