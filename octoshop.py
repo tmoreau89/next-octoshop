@@ -291,7 +291,7 @@ def octoshop(image, labels, hair_color, hair_cut, hair_texture, eye_color, addit
             "controlnet_preprocess": True,
             "controlnet_image": read_image(image),
             "controlnet": "depth_sdxl",
-            "controlnet_conditioning_scale": 0.5,
+            "controlnet_conditioning_scale": 0.7,
         }
         start_sdxl = time.time()
         gen_image = query_sdxl(payload)
@@ -386,6 +386,7 @@ with st.expander("Results need improvement?"):
         index=None
     )
     additional_detail = st.text_input("Any additional information about you (e.g. ethnicity, gender identity)", value="")
+    st.write("Fill out the [survey form](https://forms.gle/Jo2edFXEq3zRuqMY6) to provide feedback and report any issue")
 
 
 if my_upload is not None:
