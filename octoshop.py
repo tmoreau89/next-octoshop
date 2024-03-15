@@ -398,7 +398,7 @@ if my_upload is not None:
         labels = query_clip_interrogator(read_image(image))
         print("The CLIP labels are: {}".format(labels))
 
-        for i in range(0, 8):
+        for i in range(0, 4):
             t = threading.Thread(
                 target=octoshop,
                 args=(
