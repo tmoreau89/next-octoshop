@@ -18,16 +18,16 @@ OCTOAI_TOKEN = os.environ["OCTOAI_API_TOKEN"]
 NEGATIVE_SD_PROMPT = "((nsfw)), (naked), large breasts, watermark, blurry photo, distortion, low-res, bad quality, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
 
 caption_list = [
-    # "Most Likely to Become President",
-    # "Future CEO",
-    # "Most Likely to Travel the World",
-    # "Most Likely to Write a Bestseller",
-    # "Future Olympic Athlete",
-    # "Most Likely to Star in a Hollywood Movie",
-    # "Future Philanthropist",
-    # "Most Likely to Discover a Cure",
-    # "Most Likely to Change the World",
-    # "Future Tech Titan"
+    "Most Likely to Become President",
+    "Future CEO",
+    "Most Likely to Travel the World",
+    "Most Likely to Write a Bestseller",
+    "Future Olympic Athlete",
+    "Most Likely to Star in a Hollywood Movie",
+    "Future Philanthropist",
+    "Most Likely to Discover a Cure",
+    "Most Likely to Change the World",
+    "Future Tech Titan",
     "Most likely to become a Hollywood superstar",
     "Future CEO of a global conglomerate",
     "Most likely to win a Nobel Prize in Literature",
@@ -161,30 +161,6 @@ def rescale_image(image):
     else:
         if w > h:
             new_height = h
-            new_width = int(h * 1216 / 832 )
-        else:
-            new_width = w
-            new_height = int(w * 1216 / 832)
-
-        left = (w - new_width)/2
-        top = (h - new_height)/2
-        right = (w + new_width)/2
-        bottom = (h + new_height)/2
-        image = image.crop((left, top, right, bottom))
-
-        if w > h:
-            return image.resize((1216, 832))
-        else:
-            return image.resize((832, 1216))
-
-def rescale_image(image):
-    w, h = image.size
-
-    if w == h:
-        return image.resize((1024, 1024))
-    else:
-        if w > h:
-            new_height = h
             new_width = int(h * 1152 / 896 )
         else:
             new_width = w
@@ -272,15 +248,10 @@ def octoshop(image, person_info, hair_color, hair_cut, hair_texture, eye_color, 
 
         # Prepare LLAMA request to perform translation
         caption = random.choice(caption_list)
-        # if additional_detail == "":
-        #     llm_prompt = '''
-        #     Human: provide detailed, one-sentence image description of a yearbook photo of a student dressed in 90's clothing. The caption of the yearbook photo is: "{}", so add props in the description that reinforce that caption. Identify the subject details based on the following context while ignoring clothing from that context.
-        #     Context: "{}".
-        #     AI: '''.format(caption, labels)
-        # else:
         llm_prompt = '''
-        Human: provide detailed, one-sentence image description of a yearbook photo of a student dressed in 90's clothing. The caption of the yearbook photo is: "{}", so add props in the description that reinforce that caption. The subject is a {}.
-        AI: '''.format(caption, person_info)
+        Human: provide detailed, one-sentence image description of a yearbook photo of a student dressed in 90's clothing. The caption of the yearbook photo is: "{}", so add props in the description that reinforce that caption. Identify the subject details based on the following context while ignoring clothing from that context.
+        Context: "{}".
+        AI: '''.format(caption, labels)
         print("Prompt: {}".format(llm_prompt))
         start_llama = time.time()
         transformed_labels = query_llm(llm_prompt)
@@ -320,7 +291,7 @@ def octoshop(image, person_info, hair_color, hair_cut, hair_texture, eye_color, 
             "controlnet_preprocess": True,
             "controlnet_image": read_image(image),
             "controlnet": "depth_sdxl",
-            "controlnet_conditioning_scale": 0.2,
+            "controlnet_conditioning_scale": 0.33,
         }
         start_sdxl = time.time()
         gen_image = query_sdxl(payload)
@@ -370,39 +341,6 @@ st.write("### For OctoAI internal use only!")
 
 my_upload = st.file_uploader("Take a snap or upload a photo", type=["png", "jpg", "jpeg"])
 
-person_info = st.radio(
-    "Select the emoji you identify the most with",
-    [
-        "👩🏻", "👩🏼", "👩🏽", "👩🏾", "👩🏿",
-        "🧑🏻", "🧑🏼", "🧑🏽", "🧑🏾", "🧑🏿",
-        "👨🏻", "👨🏼", "👨🏽", "👨🏾", "👨🏿"
-    ],
-    # captions = [
-    #     "woman", "woman", "woman", "woman", "woman",
-    #     "person", "person", "person", "person", "person",
-    #     "man", "man", "man", "man", "man"
-    # ],
-    index=None,
-    horizontal=True
-)
-person_info_dict = {
-    "👩🏻": "woman with light skin",
-    "👩🏼": "woman with medium-light skin",
-    "👩🏽": "woman with medium skin",
-    "👩🏾": "woman with medium-dark skin",
-    "👩🏿": "woman with dark skin",
-    "🧑🏻": "gender neutral person with light skin",
-    "🧑🏼": "gender neutral person with medium-light skin",
-    "🧑🏽": "gender neutral person with medium skin",
-    "🧑🏾": "gender neutral person with medium-dark skin",
-    "🧑🏿": "gender neutral person with dark skin",
-    "👨🏻": "man with light skin",
-    "👨🏼": "man with medium-light skin",
-    "👨🏽": "man with medium skin",
-    "👨🏾": "man with medium-dark skin",
-    "👨🏿": "man with dark skin",
-}
-
 with st.expander("Results need improvement?"):
     st.text("The AI models probably need a bit more information about you!")
     col1, col2, col3, col4 = st.columns(4)
@@ -447,25 +385,25 @@ with st.expander("Results need improvement?"):
         ],
         index=None
     )
-    additional_detail = st.text_input("Any additional information about you (e.g. ethnicity)", value="")
+    additional_detail = st.text_input("Any additional information about you (e.g. ethnicity, gender identity)", value="")
 
 
-if my_upload is not None and person_info_dict is not None:
+if my_upload is not None:
     if st.button('Generate Yearbook Photos'):
         # Pre-process the image
         input_img = Image.open(my_upload)
         input_img = rotate_image(input_img)
         image = rescale_image(input_img)
-        # # Send CLIP request
-        # labels = query_clip_interrogator(read_image(image))
-        # print("The CLIP labels are: {}".format(labels))
+        # Send CLIP request
+        labels = query_clip_interrogator(read_image(image))
+        print("The CLIP labels are: {}".format(labels))
 
         for i in range(0, 8):
             t = threading.Thread(
                 target=octoshop,
                 args=(
                     image,
-                    person_info_dict[person_info],
+                    labels,
                     hair_color_detail,
                     hair_cut_detail,
                     hair_texture_detail,
