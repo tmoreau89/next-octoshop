@@ -420,7 +420,7 @@ if my_upload is not None:
         columns = [col1, col2, col3, col4]
 
         photo_counter = 0
-        while True:
+        while photo_counter < 4:
             image, caption, description = img_q.get()
             columns[photo_counter%4].image(image)
             columns[photo_counter%4].text(caption)
