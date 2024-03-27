@@ -210,7 +210,7 @@ def query_llm(prompt):
             "content": prompt
         }
         ],
-        model="smaug-72b-chat",
+        model="nous-hermes-2-mixtral-8x7b-dpo",
         max_tokens=128,
         temperature=0.1
     )
