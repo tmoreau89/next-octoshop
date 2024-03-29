@@ -91,7 +91,6 @@ caption_list = [
     "Most likely to become a famous voice actor",
     "Future leader in global human rights advocacy",
     "Most likely to win a Pulitzer Prize for poetry",
-    "Future Grammy Award-winning rapper",
     "Most likely to start their own successful beauty brand",
     "Future Nobel Prize-winning biologist",
     "Most likely to become a famous magician",
@@ -104,7 +103,6 @@ caption_list = [
     "Future Nobel Prize-winning astronomer",
     "Most likely to win an Olympic gold medal in figure skating",
     "Future CEO of a major pharmaceutical company",
-    "Most likely to become a famous mime artist",
     "Future leader in wildlife conservation",
     "Most likely to win a Pulitzer Prize for fiction",
     "Future Grammy Award-winning jazz musician",
@@ -126,7 +124,6 @@ caption_list = [
     "Future Grammy Award-winning classical musician",
     "Most likely to start their own successful fashion line",
     "Future Nobel Prize-winning anthropologist",
-    "Most likely to become a famous clown",
     "Future CEO of a pioneering biotechnology firm"
 ]
 
@@ -286,7 +283,6 @@ def octoshop(image, labels, hair_color, hair_cut, hair_texture, eye_color, addit
             "cfg_scale": 10,
             "use_refiner": True,
             "high_noise_frac": 0.8,
-            "seed": seed,
             "sampler": "DPM_PLUS_PLUS_2M_KARRAS",
             "controlnet_preprocess": True,
             "controlnet_image": read_image(image),
