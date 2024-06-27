@@ -96,7 +96,7 @@ st.write("\n\n")
 st.write("This is a demo preview, and is not meant for redistribution or production use")
 
 # Sidebar for users to input their OctoAI key
-octoai_api_key = st.sidebar.text_input('OctoAI API Token')
+octoai_api_key = st.sidebar.text_input('OctoAI API Token', type='password')
 os.environ["OCTOAI_API_TOKEN"] = octoai_api_key
 
 # OctoAI client
