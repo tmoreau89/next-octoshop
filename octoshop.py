@@ -256,7 +256,7 @@ st.set_page_config(layout="wide", page_title="Yearbook photo with OctoAI")
 
 st.write("## Yearbook photo with OctoAI 📷")
 st.write("\n\n")
-st.write("### This is a demo preview, and is not meant for redistribution or production use")
+st.write("This is a demo preview, and is not meant for redistribution or production use")
 
 my_upload = st.file_uploader("Take a snap or upload a photo", type=["png", "jpg", "jpeg"])
 
