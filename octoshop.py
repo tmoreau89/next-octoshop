@@ -160,7 +160,7 @@ def query_llm(prompt):
         messages=[
         {
             "role": "system",
-            "content": "You are a helpful assistant. Keep your responses short and limited to one sentence."
+            "content": "You are a helpful assistant. Keep your responses short and limited to or two one sentence."
         },
         {
             "role": "user",
@@ -229,7 +229,7 @@ def octoshop(image, labels):
             "controlnet_preprocess": True,
             "controlnet_image": read_image(image),
             "controlnet": "depth_sdxl",
-            "controlnet_conditioning_scale": 0.65,
+            "controlnet_conditioning_scale": 0.50,
         }
         gen_image = query_sdxl(payload)
         print("SDXL generation done!")
