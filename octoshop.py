@@ -11,11 +11,10 @@ import random
 import threading
 import queue
 
-CLIP_ENDPOINT_URL = os.environ["OCTOSHOP_CLIP_ENDPOINT_URL"]
-FACESWAP_ENDPOINT_URL = os.environ["OCTOSHOP_FACESWAP_ENDPOINT_URL"]
-OCTOAI_TOKEN = os.environ["OCTOAI_API_TOKEN"]
+CLIP_ENDPOINT_URL = "https://octoshop-clip-4jkxk521l3v1.octoai.run"
+FACESWAP_ENDPOINT_URL = "https://octoshop-faceswap-4jkxk521l3v1.octoai.run"
 
-NEGATIVE_SD_PROMPT = "((nsfw)), watermark, blurry photo, distortion, low-res, bad quality, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
+NEGATIVE_SD_PROMPT = "((nsfw)), hands, watermark, blurry photo, distortion, low-res, bad quality, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
 
 caption_list = [
     "Most Likely to Become President",
@@ -45,7 +44,6 @@ caption_list = [
     "Future Nobel Prize-winning economist",
     "Most likely to become a famous singer",
     "Future leader in international diplomacy",
-    "Most likely to win a Tony Award for Best Actor/Actress",
     "Future CEO of a successful hospitality chain",
     "Most likely to discover a cure for a major disease",
     "Future Pulitzer Prize-winning poet",
@@ -90,8 +88,12 @@ caption_list = [
 # SDXL futures
 img_q = queue.Queue()
 
+# To use SDXL and the various llama models
+octoai_api_key = st.sidebar.text_input('OpenAI API Key')
+os.environ["OCTOAI_API_TOKEN"] = octoai_api_key
+
 # OctoAI client
-oai_client = Client(OCTOAI_TOKEN)
+oai_client = Client(octoai_api_key)
 
 def rotate_image(image):
     try:
@@ -167,7 +169,7 @@ def query_llm(prompt):
             "content": prompt
         }
         ],
-        model="nous-hermes-2-mixtral-8x7b-dpo",
+        model="meta-llama-3-8b-instruct",
         max_tokens=128,
         temperature=0.1
     )
@@ -175,7 +177,7 @@ def query_llm(prompt):
     return generated_text
 
 def query_sdxl(payload):
-    oai_client = Client(OCTOAI_TOKEN)
+    oai_client = Client(octoai_api_key)
     future = oai_client.infer_async(
         endpoint_url="https://image.octoai.run/generate/controlnet-sdxl",
         inputs=payload
