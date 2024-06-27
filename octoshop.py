@@ -238,7 +238,7 @@ def octoshop(image, labels):
             "controlnet_preprocess": True,
             "controlnet_image": read_image(image),
             "controlnet": "depth_sdxl",
-            "controlnet_conditioning_scale": 0.8,
+            "controlnet_conditioning_scale": 0.75,
         }
         gen_image = query_sdxl(payload)
         print("SDXL generation done!")
