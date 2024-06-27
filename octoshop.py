@@ -88,8 +88,15 @@ caption_list = [
 # SDXL futures
 img_q = queue.Queue()
 
-# To use SDXL and the various llama models
-octoai_api_key = st.sidebar.text_input('OpenAI API Key')
+# Streamlit page title
+st.set_page_config(layout="wide", page_title="Yearbook photo with OctoAI")
+
+st.write("## Yearbook photo with OctoAI 📷")
+st.write("\n\n")
+st.write("This is a demo preview, and is not meant for redistribution or production use")
+
+# Sidebar for users to input their OctoAI key
+octoai_api_key = st.sidebar.text_input('OctoAI API Token')
 os.environ["OCTOAI_API_TOKEN"] = octoai_api_key
 
 # OctoAI client
@@ -250,13 +257,6 @@ def octoshop(image, labels):
 
     except Exception as e:
         st.write("Oops something went wrong (unexpected error)!")
-
-
-st.set_page_config(layout="wide", page_title="Yearbook photo with OctoAI")
-
-st.write("## Yearbook photo with OctoAI 📷")
-st.write("\n\n")
-st.write("This is a demo preview, and is not meant for redistribution or production use")
 
 my_upload = st.file_uploader("Take a snap or upload a photo", type=["png", "jpg", "jpeg"])
 
