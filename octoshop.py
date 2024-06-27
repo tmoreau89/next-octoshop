@@ -238,7 +238,7 @@ def octoshop(image, labels):
             "controlnet_preprocess": True,
             "controlnet_image": read_image(image),
             "controlnet": "depth_sdxl",
-            "controlnet_conditioning_scale": 0.50,
+            "controlnet_conditioning_scale": 0.75,
         }
         gen_image = query_sdxl(payload)
         print("SDXL generation done!")
@@ -261,34 +261,33 @@ def octoshop(image, labels):
 my_upload = st.file_uploader("Take a snap or upload a photo", type=["png", "jpg", "jpeg"])
 
 if my_upload is not None:
-    if st.button('Generate Yearbook Photos'):
-        # Pre-process the image
-        input_img = Image.open(my_upload)
-        input_img = rotate_image(input_img)
-        image = rescale_image(input_img)
-        # Send CLIP request
-        labels = query_clip_interrogator(read_image(image))
-        print("The CLIP labels are: {}".format(labels))
+    # Pre-process the image
+    input_img = Image.open(my_upload)
+    input_img = rotate_image(input_img)
+    image = rescale_image(input_img)
+    # Send CLIP request
+    labels = query_clip_interrogator(read_image(image))
+    print("The CLIP labels are: {}".format(labels))
 
-        for i in range(0, 4):
-            t = threading.Thread(
-                target=octoshop,
-                args=(
-                    image,
-                    labels
-                )
+    for i in range(0, 4):
+        t = threading.Thread(
+            target=octoshop,
+            args=(
+                image,
+                labels
             )
-            st.runtime.scriptrunner.add_script_run_ctx(t)
-            t.start()
-        img_q.join()
+        )
+        st.runtime.scriptrunner.add_script_run_ctx(t)
+        t.start()
+    img_q.join()
 
-        col1, col2, col3, col4 = st.columns(4)
-        columns = [col1, col2, col3, col4]
+    col1, col2, col3, col4 = st.columns(4)
+    columns = [col1, col2, col3, col4]
 
-        photo_counter = 0
-        while photo_counter < 4:
-            image, caption, description = img_q.get()
-            columns[photo_counter%4].image(image)
-            columns[photo_counter%4].text(caption)
-            photo_counter += 1
+    photo_counter = 0
+    while photo_counter < 4:
+        image, caption, description = img_q.get()
+        columns[photo_counter%4].image(image)
+        columns[photo_counter%4].text(caption)
+        photo_counter += 1
 
